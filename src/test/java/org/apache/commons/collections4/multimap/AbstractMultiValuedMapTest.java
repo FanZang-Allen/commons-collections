@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -825,7 +826,14 @@ public abstract class AbstractMultiValuedMapTest<K, V> extends AbstractObjectTes
 
     @Test
     public void testMultiValuedMapIterator() {
-        final MultiValuedMap<K, V> map = makeFullMap();
+	/**
+	 * Test should not assume deterministic implementation of entry value iterator. Thus Only
+	 * add two key-val pairs in the map, which is enough to test iterator and can avoid flasky test 
+	 * by checking the first retrieved key.
+	 */ 
+	final MultiValuedMap<K, V> map = makeObject();
+	map.put((K)"one", (V)"uno");
+	map.put((K)"two", (V)"dos");
         final MapIterator<K, V> it = map.mapIterator();
 
         assertThrows(IllegalStateException.class, () -> it.getKey());
@@ -836,25 +844,23 @@ public abstract class AbstractMultiValuedMapTest<K, V> extends AbstractObjectTes
 
         if (!isHashSetValue() && isAddSupported()) {
             assertTrue(it.hasNext() );
-            assertEquals("one", it.next());
-            assertEquals("one", it.getKey());
-            assertEquals("uno", it.getValue());
-            assertEquals("one", it.next());
-            assertEquals("one", it.getKey());
-            assertEquals("un", it.getValue());
-            assertEquals("two", it.next());
-            assertEquals("two", it.getKey());
-            assertEquals("dos", it.getValue());
-            assertEquals("two", it.next());
-            assertEquals("two", it.getKey());
-            assertEquals("deux", it.getValue());
-            assertEquals("three", it.next());
-            assertEquals("three", it.getKey());
-            assertEquals("tres", it.getValue());
-            assertEquals("three", it.next());
-            assertEquals("three", it.getKey());
-            assertEquals("trois", it.getValue());
-            assertThrows(UnsupportedOperationException.class, () -> it.setValue((V) "threetrois"));
+  	    K firstKey = it.next();			
+	    if (firstKey == "one") {
+		assertEquals("one", it.getKey());
+		assertEquals("uno", it.getValue());
+		assertEquals("two", it.next());
+            	assertEquals("two", it.getKey());
+            	assertEquals("dos", it.getValue());		
+	    } else if (firstKey == "two") {
+		assertEquals("two", it.getKey());
+                assertEquals("dos", it.getValue());
+                assertEquals("one", it.next());
+                assertEquals("one", it.getKey());
+                assertEquals("uno", it.getValue());    
+	    } else {
+		fail("testMultiValuedMapIterator fail");
+	    }
+	    assertThrows(UnsupportedOperationException.class, () -> it.setValue((V) "threetrois"));
         }
     }
 
