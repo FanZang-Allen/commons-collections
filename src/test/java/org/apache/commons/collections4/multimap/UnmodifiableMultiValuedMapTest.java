@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -79,6 +80,14 @@ public class UnmodifiableMultiValuedMapTest<K, V> extends AbstractMultiValuedMap
         final MultiValuedMap<K, V> map = new ArrayListValuedHashMap<>();
         addSampleMappings(map);
         return UnmodifiableMultiValuedMap.<K, V>unmodifiableMultiValuedMap(map);
+    }
+
+    @Override
+    protected MultiValuedMap<K, V> makeSimpleMap() {
+	final MultiValuedMap<K, V> originalMap = new ArrayListValuedHashMap<>();
+        originalMap.put((K)"one", (V)"uno");
+        originalMap.put((K)"two", (V)"dos");
+        return UnmodifiableMultiValuedMap.<K, V>unmodifiableMultiValuedMap(originalMap);
     }
 
     @Override

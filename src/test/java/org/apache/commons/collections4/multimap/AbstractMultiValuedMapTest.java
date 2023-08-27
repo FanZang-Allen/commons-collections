@@ -167,6 +167,13 @@ public abstract class AbstractMultiValuedMapTest<K, V> extends AbstractObjectTes
         return map;
     }
 
+    protected MultiValuedMap<K, V> makeSimpleMap() {
+        final MultiValuedMap<K, V> map = makeObject();
+        map.put((K)"one", (V)"uno");
+        map.put((K)"two", (V)"dos");
+        return map;
+    }
+
     protected void addSampleMappings(final MultiValuedMap<? super K, ? super V> map) {
         final K[] keys = getSampleKeys();
         final V[] values = getSampleValues();
@@ -825,15 +832,14 @@ public abstract class AbstractMultiValuedMapTest<K, V> extends AbstractObjectTes
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testMultiValuedMapIterator() {
 	/**
 	 * Test should not assume deterministic implementation of entry value iterator. Thus Only
 	 * add two key-val pairs in the map, which is enough to test iterator and can avoid flasky test 
 	 * by checking the first retrieved key.
 	 */ 
-	final MultiValuedMap<K, V> map = makeObject();
-	map.put((K)"one", (V)"uno");
-	map.put((K)"two", (V)"dos");
+	final MultiValuedMap<K, V> map = makeSimpleMap();
         final MapIterator<K, V> it = map.mapIterator();
 
         assertThrows(IllegalStateException.class, () -> it.getKey());
